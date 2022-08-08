@@ -36,7 +36,7 @@
   <body>
     <!-- Model -->
     <div
-      class="modal fade "
+      class="modal fade"
       id="mainModal"
       tabindex="-1"
       aria-labelledby="mainModalLabel"
@@ -96,7 +96,6 @@
               >
               <textarea
                 rows="4"
-               
                 class="form-control"
                 id="taskDescription"
                 aria-describedby="Task Title"
@@ -113,7 +112,14 @@
             >
               Close
             </button>
-            <button type="button" class="btn btn-primary">Save changes</button>
+            <button
+              type="button"
+              class="btn btn-primary"
+              onclick="saveChanges()"
+              data-bs-dismiss="modal"
+            >
+              Save changes
+            </button>
           </div>
         </div>
       </div>
@@ -176,7 +182,7 @@
       </section>
       <!-- Card -->
       <section>
-        <div class="row">
+        <div class="row task__container">
           <!-- md-> 2 cards -> so col-md-6 for lg -> 3 cards -> so col-lg-4 -->
           <div class="col-md-6 col-lg-4">
             <div class="card">
