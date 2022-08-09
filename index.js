@@ -8,18 +8,18 @@ for DOM -> document
 
 const taskContainer = document.querySelector(".task__container");
 
-const globalStore = []; // some values -> localstorage objects
+let globalStore = []; // some values -> localstorage objects
 
 //this is for readability 
 const generateNewCard = (dataObject) =>
-  `<div class="col-md-6 col-lg-4" id = ${dataObject.id}>
+  `<div class="col-md-6 col-lg-4" >
 <div class="card">
   <div class="card-header d-flex justify-content-end gap-2">
     <button type="button" class="btn btn-outline-success">
       <i class="fa-solid fa-pencil"></i>
     </button>
-    <button type="button" class="btn btn-outline-danger">
-      <i class="fa-solid fa-trash-can"></i>
+    <button type="button" class="btn btn-outline-danger" id = ${dataObject.id} onclick="deleteCard.apply(this, arguments)">
+      <i class="fa-solid fa-trash-can" id = ${dataObject.id} onclick="deleteCard.apply(this, arguments)"></i>
     </button>
   </div>
   <img
@@ -44,6 +44,8 @@ const generateNewCard = (dataObject) =>
 </div>
 </div>`;
 
+
+// loading previous card to window to tackle the refreshing issue
 const loadInitialCardData = () => {
   //accessing localstorage to get tasky card data
   const getCardData = localStorage.getItem("tasky"); //to get a new data i have to use getItem
@@ -55,10 +57,9 @@ const loadInitialCardData = () => {
     // updating my global storage 
     globalStore.push(cardObject);
   })
-
-
 };
 
+//To save the new card while clicking save new button
 const saveChanges = () => {
   const taskData = {
     id: `${Date.now()}`,  //it will return unique number for id for every seconds 
@@ -76,12 +77,34 @@ const saveChanges = () => {
 
   localStorage.setItem("tasky", JSON.stringify({ cards: globalStore }));
 };
+// Features
+//1) Delete Card
+const deleteCard = (event) =>{
+  //to access the ID i need to access the event
+  event = window.event;
+  const targetID = event.target.id;
+  const tagname = event.target.tagName;
+  //need the ID of the element that being clicked
+  
+  //match the ID of the element with the element ID in Global store
+  globalStore = globalStore.filter((task) => task.id !== targetID);
+  localStorage.setItem("tasky",JSON.stringify({cards:globalStore}))
+  //contacting the parent
+  if(tagname==="BUTTON"){
+    return taskContainer.removeChild(event.target.parentNode.parentNode.parentNode);
+  }else{
+    return taskContainer.removeChild(event.target.parentNode.parentNode.parentNode.parentNode);
+  }
+  
+}
+
+
 
 //close the modal after save -> oneline code -> data-bs-dismiss
 
 /* issues 
     1) Modal is not closing after onclick -> after save changes -> solved with data-bs-dismiss
-    2) whenever refreshing i lost the data -> to solve this i have to use -> LOCAL STORAGE
+    2) whenever refreshing i lost the data -> to solve this i have to use -> LOCAL STORAGE -> Solved with local storage
 
     local storage -> It is API -> Application Programming interface
     Application -> can be web app or mobile app or browser app -> But here Local Storage is our APP
@@ -92,7 +115,7 @@ const saveChanges = () => {
  */
 
 /* Features
-    1) Delete the card❌
+    1) Delete the card❌ -> added
     2) Edit the card📝
     3) Open the Card📖
  */
