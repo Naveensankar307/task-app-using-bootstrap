@@ -37,7 +37,7 @@ const generateNewCard = (dataObject) =>
     <a href="#" class="btn btn-primary">${dataObject.taskType}</a>
   </div>
   <div class="card-footer">
-    <button type="button" class="btn btn-outline-primary float-end">
+    <button type="button" id = ${dataObject.id} class="btn btn-outline-primary float-end">
       open task
     </button>
   </div>
@@ -50,14 +50,16 @@ const loadInitialCardData = () => {
   //accessing localstorage to get tasky card data
   const getCardData = localStorage.getItem("tasky"); //to get a new data i have to use getItem
   //converting the data from string to normal object
-  const {cards} = JSON.parse(getCardData);
+  const { cards } = JSON.parse(getCardData);
   //looping over the array of task to create a HTML card, inject it to in DOM
   cards.map((cardObject) => {
     taskContainer.insertAdjacentHTML("beforeend", generateNewCard(cardObject));
     // updating my global storage 
     globalStore.push(cardObject);
-  })
+  });
 };
+
+const updateLocalStorage = () =>localStorage.setItem("tasky", JSON.stringify({ cards: globalStore }));
 
 //To save the new card while clicking save new button
 const saveChanges = () => {
@@ -75,39 +77,39 @@ const saveChanges = () => {
 
   globalStore.push(taskData);
 
-  localStorage.setItem("tasky", JSON.stringify({ cards: globalStore }));
+  updateLocalStorage()
 };
 // Features
 //1) Delete Card
-const deleteCard = (event) =>{
+const deleteCard = (event) => {
   //to access the ID i need to access the event
   event = window.event;
   const targetID = event.target.id;
   const tagname = event.target.tagName;
   //need the ID of the element that being clicked
-  
+
   //match the ID of the element with the element ID in Global store
   globalStore = globalStore.filter((task) => task.id !== targetID);
-  localStorage.setItem("tasky",JSON.stringify({cards:globalStore}))
+  localStorage.setItem("tasky", JSON.stringify({ cards: globalStore }));
   //contacting the parent
-  if(tagname==="BUTTON"){
+  if (tagname === "BUTTON") {
     return taskContainer.removeChild(event.target.parentNode.parentNode.parentNode);
-  }else{
+  } else {
     return taskContainer.removeChild(event.target.parentNode.parentNode.parentNode.parentNode);
-  }  
-  
-}
+  }
 
-const editCard = (event) =>{
+};
+
+const editCard = (event) => {
   event = window.event;
   const targetID = event.target.id;
   const tagName = event.target.tagName;
 
   let parentElement;
 
-  if(tagName === "BUTTON"){
+  if (tagName === "BUTTON") {
     parentElement = event.target.parentNode.parentNode;
-  }else{
+  } else {
     parentElement = event.target.parentNode.parentNode.parentNode;
   }
 
@@ -116,12 +118,59 @@ const editCard = (event) =>{
   let taskType = parentElement.childNodes[5].childNodes[5];
   let submitBtn = parentElement.childNodes[7].childNodes[1];
 
-  taskTitle.setAttribute("contenteditable" , "true");
-  taskDescription.setAttribute("contenteditable" , "true");
-  taskType.setAttribute("contenteditable" , "true");
+
+  taskTitle.setAttribute("contenteditable", "true");
+  taskDescription.setAttribute("contenteditable", "true");
+  taskType.setAttribute("contenteditable", "true");
+  submitBtn.setAttribute("onclick","saveEditChanges(this, arguments)")
   submitBtn.innerHTML = "Save Changes";
- 
-}
+
+};
+
+const saveEditChanges = (event) => {
+  event = window.event;
+  const targetID = event.target.id;
+  const tagName = event.target.tagName;
+
+  let parentElement;
+
+  if (tagName === "BUTTON") {
+    parentElement = event.target.parentNode.parentNode;
+  } else {
+    parentElement = event.target.parentNode.parentNode.parentNode;
+  }
+  let taskTitle = parentElement.childNodes[5].childNodes[1];
+  let taskDescription = parentElement.childNodes[5].childNodes[3];
+  let taskType = parentElement.childNodes[5].childNodes[5];
+  let submitBtn = parentElement.childNodes[7].childNodes[1];
+
+  const editedData = {
+    taskTitle: taskTitle.innerHTML,
+    taskType: taskType.innerHTML,
+    taskDescription: taskDescription.innerHTML,
+  };
+
+  globalStore = globalStore.map((task) => {
+    if (task.id === targetID) {
+      return {
+        id: task.id,
+        imageUrl: task.imageUrl,
+        taskTitle: editedData.taskTitle,
+        taskType:editedData.taskType,
+        taskDescription:editedData.taskDescription,
+      };
+    }
+    return task; // this is important
+  });
+  updateLocalStorage();
+
+  taskTitle.setAttribute("contenteditable", "false");
+  taskDescription.setAttribute("contenteditable", "false");
+  taskType.setAttribute("contenteditable", "false");
+  submitBtn.removeAttribute("onclick")
+  submitBtn.innerHTML = "Open Task";
+
+};
 
 
 //close the modal after save -> oneline code -> data-bs-dismiss
