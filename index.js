@@ -119,3 +119,4 @@ const deleteCard = (event) =>{
     2) Edit the card📝
     3) Open the Card📖
  */
+
